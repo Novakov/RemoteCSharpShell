@@ -1,49 +1,45 @@
 ﻿using System;
-using System.IO;
 using ScriptCs.Contracts;
 
 namespace RemoteCSharpShell
 {
     public class InOutConsole : IConsole
     {
-        private readonly TextReader @in;
-        private readonly TextWriter @out;
-        private ConsoleColor foregroundColor;
+        private readonly VirtualTerminal terminal;
 
-        public InOutConsole(TextReader @in, TextWriter @out)
+        public InOutConsole(VirtualTerminal terminal)
         {
-            this.@in = @in;
-            this.@out = @out;
+            this.terminal = terminal;
         }
 
         public void Write(string value)
         {
-            this.@out.Write(value);
+            this.terminal.Write(value);
         }
 
         public void WriteLine()
         {
-            this.@out.WriteLine();
+            this.terminal.WriteLine();
         }
 
         public void WriteLine(string value)
         {
-            this.@out.WriteLine(value);
+            this.terminal.WriteLine(value);
         }
 
         public string ReadLine()
         {
-            return this.@in.ReadLine();
+            throw new NotImplementedException("ReadLine not implemented");
         }
 
         public void Clear()
         {
-
+            throw new NotImplementedException("Clear not implemented");
         }
 
         public void Exit()
         {
-
+            
         }
 
         public void ResetColor()
@@ -53,39 +49,8 @@ namespace RemoteCSharpShell
 
         public ConsoleColor ForegroundColor
         {
-            get { return this.foregroundColor; }
-            set
-            {
-                this.@out.Write("\x1b[{0}m", ColorToAnsi(value));
-                this.foregroundColor = value;
-            }
-        }
-
-        public static string ColorToAnsi(ConsoleColor value)
-        {
-            switch (value)
-            {
-                case ConsoleColor.Black:        return "0;30";
-                case ConsoleColor.White:        return "1;37";
-
-                case ConsoleColor.DarkBlue:     return "0;34";
-                case ConsoleColor.DarkGreen:    return "0;32";
-                case ConsoleColor.DarkCyan:     return "0;36";
-                case ConsoleColor.DarkRed:      return "0;31";
-                case ConsoleColor.DarkMagenta:  return "0;35";
-                case ConsoleColor.DarkYellow:   return "0;33";
-                case ConsoleColor.DarkGray:     return "0;33";
-
-                case ConsoleColor.Blue:         return "1;34";
-                case ConsoleColor.Green:        return "1;32";
-                case ConsoleColor.Cyan:         return "1;36";
-                case ConsoleColor.Red:          return "1;31";
-                case ConsoleColor.Magenta:      return "1;35";
-                case ConsoleColor.Yellow:       return "1;33";
-                case ConsoleColor.Gray:         return "1;37";
-                default:
-                    throw new ArgumentOutOfRangeException("value");
-            }
-        }
+            get { return this.terminal.ForegroundColor; }
+            set { this.terminal.ForegroundColor = value; }
+        }       
     }
 }
