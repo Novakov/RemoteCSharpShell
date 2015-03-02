@@ -21,24 +21,49 @@ namespace RemoteCSharpShell
             replServer.Start();
             Console.WriteLine("Waiting for connection");
 
-            var client = replServer.AcceptTcpClient();
-            Console.WriteLine("Accepted connection {0}", client.Client.RemoteEndPoint);
-
-            var stream = client.GetStream();
-
-            using (var reader = new StreamReader(stream))
+            new Thread(() => Listen(replServer))
             {
-                using (var writer = new StreamWriter(stream))
-                {
-                    writer.AutoFlush = true;
+                IsBackground = true
+            }.Start();
 
-                    RunRepl(reader, writer);
-                }
-            }
-
-            client.Close();
+            Console.ReadLine();                       
 
             replServer.Stop();
+        }
+
+        private static void Listen(TcpListener replServer)
+        {
+            while (true)
+            {
+                var client = replServer.AcceptTcpClient();
+
+                new Thread(() => HandleClient(client)).Start();               
+            }
+        }
+
+        private static void HandleClient(TcpClient client)
+        {
+            Console.WriteLine("Accepted connection {0}", client.Client.RemoteEndPoint);
+
+            try
+            {
+                var stream = client.GetStream();
+
+                using (var reader = new StreamReader(stream))
+                {
+                    using (var writer = new StreamWriter(stream))
+                    {
+                        writer.AutoFlush = true;
+
+                        RunRepl(reader, writer);
+                    }
+                }
+
+                client.Close();
+            }
+            catch (IOException e)
+            {                
+            }
         }
 
         private static void RunRepl(TextReader input, TextWriter output)
